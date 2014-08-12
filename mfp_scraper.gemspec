@@ -5,7 +5,7 @@ require 'mfp_scraper/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "mfp_scraper"
-  spec.version       = MfpScraper::VERSION
+  spec.version       = MFPScraper::VERSION
   spec.authors       = ["Nathan Broadbent"]
   spec.email         = ["nathan.f77@gmail.com"]
   spec.summary       = %q{TODO: Write a short summary. Required.}
@@ -20,4 +20,8 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", "~> 1.5"
   spec.add_development_dependency "rake"
+
+  spec.add_dependency "mechanize"
+  spec.add_dependency "activesupport"
+  spec.add_dependency "numerouno"
 end
