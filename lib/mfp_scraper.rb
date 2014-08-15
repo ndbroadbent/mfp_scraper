@@ -1,4 +1,5 @@
 require 'mfp_scraper/version'
+require 'mfp_scraper/exercise'
 require 'mfp_scraper/food'
 require 'mfp_scraper/food_nlp'
 
@@ -7,6 +8,7 @@ require 'mechanize'
 require 'numerouno'
 
 class MFPScraper
+  include Exercise
   include Food
   include FoodNLP
 
@@ -50,6 +52,12 @@ class MFPScraper
         query_hash[:date] = params[:date].strftime("%Y-%m-%d")
       end
 
+    when :fetch_exercise_diary
+      path = "/exercise/diary/#{username}"
+      if params[:date]
+        query_hash[:date] = params[:date].strftime("%Y-%m-%d")
+      end
+
     when :food_search
       path = '/food/search'
 
@@ -61,6 +69,20 @@ class MFPScraper
 
     when :delete_food_entry
       path = "/food/remove/#{params[:entry_id]}"
+
+
+    when :exercise_search
+      path = '/exercise/search'
+
+    when :add_exercise_entry
+      path = "/exercise/update_exercise/#{params[:exercise_id]}"
+
+    when :edit_exercise_entry
+      path = "/exercise/edit_entry/#{params[:entry_id]}"
+
+    when :delete_exercise_entry
+      path = "/exercise/remove/#{params[:entry_id]}"
+
 
     else
       path = action
