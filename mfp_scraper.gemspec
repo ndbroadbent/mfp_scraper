@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = MFPScraper::VERSION
   spec.authors       = ["Nathan Broadbent"]
   spec.email         = ["nathan.f77@gmail.com"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
-  spec.homepage      = ""
+  spec.summary       = "Web Scraper for MyFitnessPal"
+  spec.description   = "A simple API client for MyFitnessPal, which requires a user's username and password"
+  spec.homepage      = "https://github.com/ndbroadbent/mfp_scraper"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
