@@ -22,13 +22,19 @@ class MFPScraper
 
   def authenticate!
     agent.get(url_for(:login)) do |page|
-      page.form_with(action: /\/account\/login$/) do |login|
+      login_result = page.form_with(action: /\/account\/login$/) do |login|
         login.username = @username
         login.password = @password
       end.submit
+
+      if login_result.search("p.flash").text[/Incorrect username or password/]
+        @authenticated = false
+      else
+        @authenticated = true
+      end
     end
 
-    @authenticated = true
+    return @authenticated
   end
 
 
