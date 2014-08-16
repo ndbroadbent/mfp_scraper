@@ -38,24 +38,27 @@ class MFPScraper
 
 
     def add_exercise_entry(options)
+      puts "Adding exercise:"
+      puts options.inspect
+
       authenticate! unless authenticated?
-      options[:datetime] ||= Time.now
+      options[:start_time] ||= Time.now
 
       agent.get(url_for(:exercise_search)) do |page|
         ajax_container = page.search('form[action="/exercise/add"] #servings')[0]
 
         # Load food form into ajax container, from ajax endpoint
-        form_page = agent.get(url_for(:add_exercise_entry, exercise_id: options[:exercise_id]))
+        form_page = agent.get(url_for(:add_exercise_entry, exercise_id: options[:exercise_type_id]))
         ajax_container.inner_html = form_page.body
 
         form = page.form_with(action: '/exercise/add')
 
-        form['exercise_entry[date]'] = options[:datetime].to_date
+        form['exercise_entry[date]'] = options[:start_time].to_date
         form['exercise_entry[type]'] = options[:exercise_type_id]
         form['exercise_entry[quantity]'] = options[:minutes]
         form['exercise_entry[calories]'] = options[:calories]
 
-        options[:datetime].strftime("%Y/%m/%d/%H/%M").split('/').each_with_index do |date_component, i|
+        options[:start_time].strftime("%Y/%m/%d/%H/%M").split('/').each_with_index do |date_component, i|
           form["exercise_entry[start_time(#{i + 1}i)]"] = date_component
         end
 
@@ -66,7 +69,7 @@ class MFPScraper
     end
 
     def update_exercise_entry(options)
-      return nil unless (options.keys & [:datetime, :minutes, :calories]).any?
+      return nil unless (options.keys & [:start_time, :minutes, :calories]).any?
 
       authenticate! unless authenticated?
 
@@ -76,8 +79,8 @@ class MFPScraper
         form['exercise_entry[quantity]'] = options[:minutes]
         form['exercise_entry[calories]'] = options[:calories]
 
-        if options[:datetime]
-          options[:datetime].strftime("%Y/%m/%d/%H/%M").split('/').each_with_index do |date_component, i|
+        if options[:start_time]
+          options[:start_time].strftime("%Y/%m/%d/%H/%M").split('/').each_with_index do |date_component, i|
             form["exercise_entry[start_time(#{i + 1}i)]"] = date_component
           end
         end
