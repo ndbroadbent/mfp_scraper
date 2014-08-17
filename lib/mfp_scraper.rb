@@ -4,7 +4,7 @@ require 'mechanize'
 require 'numerouno'
 
 require 'mfp_scraper/version'
-require 'mfp_scraper/Authentication'
+require 'mfp_scraper/authentication'
 require 'mfp_scraper/exercise'
 require 'mfp_scraper/food'
 require 'mfp_scraper/food_nlp'
