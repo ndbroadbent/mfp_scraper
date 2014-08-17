@@ -1,15 +1,33 @@
 class MFPScraper
   module Exercise
+    extend ActiveSupport::Concern
+
+    included do
+      register_path :exercise_diary, ->(params) {
+        path = "/exercise/diary/#{username}"
+        if params[:date]
+          path << '?date=' << params[:date].strftime("%Y-%m-%d")
+        end
+        path
+      }
+      register_path :exercise_search, '/exercise/search'
+      register_path :add_exercise_entry, ->(params) { "/exercise/update_exercise/#{params[:exercise_id]}" }
+      register_path :edit_exercise_entry, ->(params) { "/exercise/edit_entry/#{params[:entry_id]}" }
+      register_path :delete_exercise_entry, ->(params) { "/exercise/remove/#{params[:entry_id]}" }
+    end
+
+
     EXERCISE_DATA_COLUMNS = %w(minutes calories).map(&:to_sym)
     EXERCISE_TYPE_IDS = [:cardio, :weight].
               each_with_index.each_with_object({}) {|(m,i), h| h[m] = i }
+
 
     def fetch_exercise_diary(date = Date.today)
       authenticate! unless authenticated?
 
       exercise_diary = {}
 
-      agent.get(url_for(:fetch_exercise_diary, date: date)) do |page|
+      agent.get(url_for(:exercise_diary, date: date)) do |page|
         container = page.search('.container')
 
         container.search('table').each do |table|
@@ -38,9 +56,6 @@ class MFPScraper
 
 
     def add_exercise_entry(options)
-      puts "Adding exercise:"
-      puts options.inspect
-
       authenticate! unless authenticated?
       options[:start_time] ||= Time.now
 
@@ -48,13 +63,13 @@ class MFPScraper
         ajax_container = page.search('form[action="/exercise/add"] #servings')[0]
 
         # Load food form into ajax container, from ajax endpoint
-        form_page = agent.get(url_for(:add_exercise_entry, exercise_id: options[:exercise_type_id]))
+        form_page = agent.get(url_for(:add_exercise_entry, exercise_id: options[:exercise_id]))
         ajax_container.inner_html = form_page.body
 
         form = page.form_with(action: '/exercise/add')
 
         form['exercise_entry[date]'] = options[:start_time].to_date
-        form['exercise_entry[type]'] = options[:exercise_type_id]
+        form['exercise_entry[type]'] = options[:exercise_id]
         form['exercise_entry[quantity]'] = options[:minutes]
         form['exercise_entry[calories]'] = options[:calories]
 
@@ -92,7 +107,6 @@ class MFPScraper
     end
 
     def delete_exercise_entry(entry_id)
-      puts "Deleting entry: #{entry_id}"
       agent.get(url_for(:delete_exercise_entry, entry_id: entry_id))
       return true
     end

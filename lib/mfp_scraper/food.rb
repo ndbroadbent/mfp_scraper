@@ -1,15 +1,33 @@
 class MFPScraper
   module Food
+    extend ActiveSupport::Concern
+
+    included do
+      register_path :food_diary, ->(params) {
+        path = "/food/diary/#{username}"
+        if params[:date]
+          path << '?date=' << params[:date].strftime("%Y-%m-%d")
+        end
+        path
+      }
+      register_path :food_search, '/food/search'
+      register_path :add_food_entry, ->(params) { "/food/update_servings/#{params[:food_id]}" }
+      register_path :edit_food_entry, ->(params) { "/food/edit_entry/#{params[:entry_id]}" }
+      register_path :delete_food_entry, ->(params) { "/food/remove/#{params[:entry_id]}" }
+    end
+
+
     FOOD_DATA_COLUMNS = %w(calories carbs fat protein sodium sugar).map(&:to_sym)
     MEAL_IDS = [:breakfast, :lunch, :dinner, :snacks].
                   each_with_index.each_with_object({}) {|(m,i), h| h[m] = i }
+
 
     def fetch_food_diary(date = Date.today)
       authenticate! unless authenticated?
 
       food_diary = {}
 
-      agent.get(url_for(:fetch_food_diary, date: date)) do |page|
+      agent.get(url_for(:food_diary, date: date)) do |page|
         food_container = page.search('.food_container')
 
         current_meal = nil
@@ -25,6 +43,8 @@ class MFPScraper
 
               food_link = row.search('td.first a').first
               food_data[:description], food_data[:serving_size] = food_link.text.strip.split(',').map(&:strip)
+              # Get rid of star in description
+              food_data[:description].gsub!(/^\*/, '')
               food_data[:entry_id] = food_link.attr('data-food-entry-id')
 
               food_data_values = row.search('td')[1..6].map {|t| t.text.strip.to_i }
@@ -87,7 +107,6 @@ class MFPScraper
     end
 
     def delete_food_entry(entry_id)
-      puts "Deleting entry: #{entry_id}"
       agent.get(url_for(:delete_food_entry, entry_id: entry_id))
       return true
     end

@@ -16,4 +16,8 @@ else
 end
 
 mfp = MFPScraper.new(username: config['username'], password: config['password'])
+
+
+
+
 mfp.add_food_entries_from_text(ARGV[0])
