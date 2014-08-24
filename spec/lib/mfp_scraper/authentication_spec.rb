@@ -16,4 +16,12 @@ describe MFPScraper::Authentication, :vcr do
     expect(result).to eq true
     expect(mfp.authenticated?).to eq true
   end
+
+  it "should allow authentication for valid credentials" do
+    mfp = client_with_valid_credentials
+    mfp.authenticate!
+
+    username = mfp.fetch_username
+    expect(username).to eq 'nathanf77'
+  end
 end

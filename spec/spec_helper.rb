@@ -6,6 +6,7 @@
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 require 'vcr'
 require 'mfp_scraper'
+require 'debugger'
 
 VCR.configure do |config|
   config.cassette_library_dir = 'spec/cassettes'

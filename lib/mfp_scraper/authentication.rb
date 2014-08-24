@@ -26,5 +26,12 @@ class MFPScraper
       return @authenticated
     end
 
+    def fetch_username
+      authenticate! unless authenticated?
+
+      agent.get(url_for(:login)) do |page|
+        return page.search('ul#navTop li.first a')[0].text.strip
+      end
+    end
   end
 end
