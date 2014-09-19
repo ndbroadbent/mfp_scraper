@@ -89,6 +89,11 @@ class MFPScraper
       authenticate! unless authenticated?
 
       agent.get(url_for(:edit_exercise_entry, entry_id: options[:entry_id])) do |entry_form_page|
+        if entry_form_page.body.include?("Unable to edit this entry")
+          puts "Unable to edit this entry!"
+          return false
+        end
+
         form = entry_form_page.forms.first
 
         form['exercise_entry[quantity]'] = options[:minutes]
